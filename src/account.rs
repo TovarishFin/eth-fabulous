@@ -1,5 +1,5 @@
 use rand::prelude::*;
-use rand::rngs::OsRng;
+use rand::thread_rng;
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha3::{Digest, Keccak256};
 use std::fmt;
@@ -31,7 +31,8 @@ impl Account {
 
     pub fn rand_new() -> Account {
         let mut pk_src: [u8; 32] = [0; 32];
-        OsRng.fill_bytes(&mut pk_src);
+        let mut generator = thread_rng();
+        generator.fill_bytes(&mut pk_src);
         Account::new(&pk_src)
     }
 
@@ -102,9 +103,11 @@ mod tests {
 
     #[test]
     fn test_gen_random_account() {
-        let account = Account::rand_new();
-        println!("{}", account);
-        println!("{:x}", account);
-        println!("{:?}", account);
+        Account::rand_new();
+        /*
+         * println!("{}", account);
+         * println!("{:x}", account);
+         * println!("{:?}", account);
+         */
     }
 }
