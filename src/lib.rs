@@ -1,4 +1,4 @@
-mod account;
+pub mod account;
 use crate::account::Account;
 use colored::*;
 use rand::prelude::*;

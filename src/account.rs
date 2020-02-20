@@ -11,7 +11,6 @@ pub struct Account {
 }
 
 impl Account {
-    // FIXME: ensure priv_key_bytes is 32 bytes long via type or assertions
     pub fn new(priv_key_bytes: &[u8]) -> Account {
         let secp = Secp256k1::new();
         let priv_key = SecretKey::from_slice(priv_key_bytes).expect("error generating private_key");
@@ -100,14 +99,67 @@ fn byte_array_to_hex_prefixed(u8_vector: &Vec<u8>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rand::rngs::StdRng;
+    use rand::thread_rng;
+    use regex::Regex;
+
+    const EMPTY_PK: [u8; 32] = [0; 32];
+
+    fn addr_rgx() -> Regex {
+        Regex::new("^0x[0-9a-fA-F]+$").unwrap()
+    }
+
+    fn rand_gen() -> StdRng {
+        StdRng::from_rng(thread_rng()).unwrap()
+    }
 
     #[test]
-    fn test_gen_random_account() {
+    fn test_new_account() {
+        let mut pk = EMPTY_PK;
+        rand_gen().fill_bytes(&mut pk);
+
+        let account = Account::new(&pk);
+
+        let priv_key = account.priv_key_as_hex();
+        let pub_key = account.pub_key_as_hex();
+        let address = account.address_as_hex();
+
+        assert!(
+            addr_rgx().is_match(&priv_key),
+            "private key should be hexadecimal."
+        );
+        assert_eq!(
+            priv_key.len(),
+            66,
+            "private key should be 66 characters long but was {} characters long.",
+            priv_key.len()
+        );
+
+        assert!(
+            addr_rgx().is_match(&pub_key),
+            "public key key should be hexadecimal."
+        );
+        assert_eq!(
+            pub_key.len(),
+            130,
+            "public key should be 130 characters long but was {} characters long.",
+            pub_key.len()
+        );
+
+        assert!(
+            addr_rgx().is_match(&address),
+            "address key should be hexadecimal."
+        );
+        assert_eq!(
+            address.len(),
+            42,
+            "address should be 22 characters long but was {} characters long.",
+            address.len()
+        );
+    }
+
+    #[test]
+    fn test_rand_new_account() {
         Account::rand_new();
-        /*
-         * println!("{}", account);
-         * println!("{:x}", account);
-         * println!("{:?}", account);
-         */
     }
 }
