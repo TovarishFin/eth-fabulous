@@ -113,13 +113,7 @@ mod tests {
         StdRng::from_rng(thread_rng()).unwrap()
     }
 
-    #[test]
-    fn test_new_account() {
-        let mut pk = EMPTY_PK;
-        rand_gen().fill_bytes(&mut pk);
-
-        let account = Account::new(&pk);
-
+    fn check_account_properties(account: &Account) {
         let priv_key = account.priv_key_as_hex();
         let pub_key = account.pub_key_as_hex();
         let address = account.address_as_hex();
@@ -159,7 +153,42 @@ mod tests {
     }
 
     #[test]
+    fn test_new_account() {
+        let mut pk = EMPTY_PK;
+        rand_gen().fill_bytes(&mut pk);
+
+        let account = Account::new(&pk);
+
+        check_account_properties(&account);
+    }
+
+    #[test]
+    fn test_new_account_multiple() {
+        let mut pk = EMPTY_PK;
+        let mut rand = rand_gen();
+
+        rand.fill_bytes(&mut pk);
+        let account = Account::new(&pk);
+        check_account_properties(&account);
+
+        rand.fill_bytes(&mut pk);
+        let account = Account::new(&pk);
+        check_account_properties(&account);
+    }
+
+    #[test]
     fn test_rand_new_account() {
-        Account::rand_new();
+        let account = Account::rand_new();
+
+        check_account_properties(&account);
+    }
+
+    #[test]
+    fn test_rand_new_account_multiple() {
+        let account = Account::rand_new();
+        check_account_properties(&account);
+
+        let account = Account::rand_new();
+        check_account_properties(&account);
     }
 }
